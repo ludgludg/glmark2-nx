@@ -89,10 +89,12 @@ void
 CanvasGeneric::clear()
 {
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+#ifndef __SWITCH__
 #if GLMARK2_USE_GL
     glClearDepth(1.0f);
 #elif GLMARK2_USE_GLESv2
     glClearDepthf(1.0f);
+#endif
 #endif
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }

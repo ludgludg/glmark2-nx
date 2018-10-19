@@ -44,6 +44,11 @@
 #include "native-state-wayland.h"
 #elif GLMARK2_USE_DISPMANX
 #include "native-state-dispmanx.h"
+#elif __SWITCH__
+#include "native-state-switch.h"
+
+#include <iostream>
+#include <fstream>
 #endif
 
 #if GLMARK2_USE_EGL
@@ -140,12 +145,16 @@ do_validation(Canvas &canvas)
 int
 main(int argc, char *argv[])
 {
+std::ofstream *logfile = NULL;
 
     if (!Options::parse_args(argc, argv))
         return 1;
 
     /* Initialize Log class */
-    Log::init(Util::appname_from_path(argv[0]), Options::show_debug);
+#if 1 //def __SWITCH__
+    logfile = new std::ofstream("glmark2.log");
+#endif
+    Log::init(Util::appname_from_path(argv[0]), Options::show_debug, logfile);
 
     if (Options::show_help) {
         Options::print_help();
@@ -172,6 +181,8 @@ main(int argc, char *argv[])
     NativeStateWayland native_state;
 #elif GLMARK2_USE_DISPMANX
     NativeStateDispmanx native_state;
+#elif __SWITCH__
+    NativeStateSwitch native_state;
 #endif
 
 #if GLMARK2_USE_EGL

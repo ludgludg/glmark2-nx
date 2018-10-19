@@ -1,0 +1,31 @@
+Building from Windows
+---------------------
+
+To build glmark2, you need devkitA64 installed (https://devkitpro.org/wiki/Getting_Started)
+
+Start msys2-shell from the devkitPro/msys2 folder and install some packages.
+You need, at least: libnx switch-glad switch-mesa switch-libdrm_nouveau switch-libpng switch-zlib switch-libjpeg-turbo
+
+To build manually,
+	cd Switch
+	make
+To build with Visual Studio,
+	opne Switch.sln inside the Switch folder
+	build
+
+To install to the device,
+	make a folder switch/glmark2 on your sdcard
+	copy the 3 folders from the data folder to the sdcard
+	copy Switch/glmark.nro to the sdcard
+
+Directory tree on the sdcard:	
+	/Switch/glmark2/models/
+	/Switch/glmark2/shaders/
+	/Switch/glmark2/textures/
+	/Switch/glmark2/glmark2.nro
+
+Running
+-------
+Start glmark2 from the homebrew menu
+When it finishes, there will be a file glmark2.log inside the glmark2 folder. It containts the results of the benchmark.
+To view the log file, use NX-Shell; it has a file viewer.

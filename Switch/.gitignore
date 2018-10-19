@@ -1,0 +1,11 @@
+build/
+Debug/
+Release/
+x64/
+.vs/
+*.user
+*.elf
+*.nacp
+*.nro
+*.nso
+*.pfs0 

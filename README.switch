@@ -1,0 +1,22 @@
+glmark2 for thr Nintendo Switch (homebrew)
+==========================================
+
+limitations
+-----------
+For now, with the beta version of the mesa library, we cannot disable the vblank sync. The benchmark is always 16.6ms :-(
+
+Sources
+-------
+Build using GLMARK2_USE_GLESv2 and GLMARK2_USE_EGL.
+A little hacky for now...will clean-up later when the OpenGL support for the Switch is better...
+
+Mods from the original glmark2
+------------------------------
+canvas-generic.cpp:
+	Removed a call to glClearDepth()
+gl-state-egl.cpp:
+	Removed a call to eglReleaseThread()
+	Removed a call to eglGetPlatformDisplayEXT()
+	Added a call to gladLoadGL()
+main.cpp:
+	Added a log filename to the options (should use the command line arguments instead)
