@@ -300,10 +300,9 @@ GLStateEGL::~GLStateEGL()
         if(!eglTerminate(egl_display_))
             Log::error("eglTerminate failed\n");
     }
-#ifndef __SWITCH__
+
     if(!eglReleaseThread())
        Log::error("eglReleaseThread failed\n");
-#endif
 }
 
 bool
@@ -339,6 +338,19 @@ GLStateEGL::init_gl_extensions()
 #endif
 }
 
+extern "C" {
+    GL_APICALL void GL_APIENTRY empty_glClearDepthf(GLfloat d)
+    {
+        //printf("glClearDepthf()\n");
+    }
+
+    EGLAPI EGLBoolean EGLAPIENTRY eglReleaseThread(void)
+    {
+        //printf("eglReleaseThread()\n");
+        return 1;
+    }
+}
+
 bool
 GLStateEGL::valid()
 {
@@ -365,6 +377,7 @@ GLStateEGL::valid()
 #ifdef __SWITCH__
     // Load OpenGL routines using glad
     gladLoadGL();
+    glClearDepthf = empty_glClearDepthf;
 #endif
     if (!eglSwapInterval(egl_display_, 0)) {
         Log::info("** Failed to set swap interval. Results may be bounded above by refresh rate.\n");
@@ -440,6 +453,8 @@ GLStateEGL::getVisualConfig(GLVisualConfig& vc)
 #define GLMARK2_NATIVE_EGL_DISPLAY_ENUM EGL_PLATFORM_GBM_KHR
 #elif  GLMARK2_USE_MIR
 #define GLMARK2_NATIVE_EGL_DISPLAY_ENUM EGL_PLATFORM_MIR_KHR
+#else
+#define GLMARK2_NATIVE_EGL_DISPLAY_ENUM 0
 #endif
 
 bool
@@ -447,7 +462,7 @@ GLStateEGL::gotValidDisplay()
 {
     if (egl_display_)
         return true;
-#ifndef __SWITCH__
+
     char const * __restrict const supported_extensions =
         eglQueryString(EGL_NO_DISPLAY, EGL_EXTENSIONS);
 
@@ -475,7 +490,6 @@ GLStateEGL::gotValidDisplay()
     {
         Log::debug("eglGetPlatformDisplayEXT() seems unsupported\n");
     }
-#endif
 
     /* Just in case get_platform_display failed... */
     if (!egl_display_) {

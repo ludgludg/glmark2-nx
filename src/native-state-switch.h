@@ -30,7 +30,7 @@
 class NativeStateSwitch : public NativeState
 {
 public:
-    NativeStateSwitch() : xwin_(false), xdpy_(false), properties_() {}
+    NativeStateSwitch();
     ~NativeStateSwitch();
 
     bool init_display();

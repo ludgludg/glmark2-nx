@@ -23,16 +23,122 @@
 #include "native-state-switch.h"
 #include "log.h"
 
+// define the folowing to redirect stdout and stderr to ethernet
+//#define DEBUG_SOCKET_PORT 1962
+//#define DEBUG_SOCKET_ADDR "192.168.0.100"
+
 #define WINDOW_W 1280
 #define WINDOW_H 720
 
 /*******************
 * Private methods *
 *******************/
+#ifdef DEBUG_SOCKET_PORT
+#include <string.h>
+#include <unistd.h>
+#include <sys/socket.h>
+#include <arpa/inet.h> 
+
+static int std_captured, stdout_sock, saved_stdout, saved_stderr;
+#endif
+//----------------------------------------------------------
+// return 0 on success
+static int CaptureStdout()
+{
+#ifdef DEBUG_SOCKET_PORT
+    struct sockaddr_in srv_addr;
+
+    if (std_captured > 0)
+        return 1;
+
+    stdout_sock = saved_stdout = saved_stderr = -1;
+    if (R_FAILED(socketInitializeDefault()))
+        return 1;
+
+    stdout_sock = socket(AF_INET, SOCK_STREAM, 0);
+    if (!stdout_sock)
+    {
+        socketExit();
+        return 1;
+    }
+
+    std_captured += 1;
+
+    bzero(&srv_addr, sizeof srv_addr);
+    srv_addr.sin_family = AF_INET;
+    srv_addr.sin_addr.s_addr = inet_addr(DEBUG_SOCKET_ADDR);
+    srv_addr.sin_port = htons(DEBUG_SOCKET_PORT);
+
+    if (connect(stdout_sock, (struct sockaddr *) &srv_addr, sizeof(srv_addr)) != 0)
+    {
+        close(stdout_sock);
+        return 1;
+    }
+
+    // redirect stdout
+    fflush(stdout);
+    saved_stdout = dup(STDOUT_FILENO);
+    dup2(stdout_sock, STDOUT_FILENO);
+    // redirect stderr
+    fflush(stderr);
+    saved_stderr = dup(STDERR_FILENO);
+    dup2(stdout_sock, STDERR_FILENO);
+#endif
+
+    return 0;
+}
+
+static void RestoreStdout()
+{
+#ifdef DEBUG_SOCKET_PORT
+    struct linger linger;
+
+    if (--std_captured)
+        return;
+
+    fflush(stdout);
+    if (saved_stdout >= 0)
+    {
+        dup2(saved_stdout, STDOUT_FILENO);
+        close(saved_stdout);
+        saved_stdout = -1;
+    }
+    if (saved_stderr >= 0)
+    {
+        dup2(saved_stderr, STDERR_FILENO);
+        close(saved_stderr);
+        saved_stderr = -1;
+    }
+    if (stdout_sock >= 0)
+    {
+        shutdown(stdout_sock, SHUT_WR);
+
+        /* set linger to 0 */
+        linger.l_onoff = 1;
+        linger.l_linger = 0;
+        setsockopt(stdout_sock, SOL_SOCKET, SO_LINGER, &linger, sizeof(linger));
+
+        //delay(100);
+        close(stdout_sock);
+        stdout_sock = -1;
+
+        //delay(100);
+        socketExit();
+    }
+#endif
+}
 
 /******************
  * Public methods *
  ******************/
+
+NativeStateSwitch::NativeStateSwitch()
+{
+    xwin_ = false;
+    xdpy_ = false;
+    properties_ = WindowProperties();
+    CaptureStdout();
+}
 
 NativeStateSwitch::~NativeStateSwitch()
 {
@@ -41,6 +147,7 @@ NativeStateSwitch::~NativeStateSwitch()
         xdpy_ = false;
         xwin_ = false;
     }
+    RestoreStdout();
 }
 
 bool

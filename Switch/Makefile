@@ -31,8 +31,8 @@ include $(DEVKITPRO)/libnx/switch_rules
 #     - <libnx folder>/default_icon.jpg
 #---------------------------------------------------------------------------------
 APP_TITLE  := glmark2
-APP_AUTHOR := ldg
-APP_VERSION := 2017.07
+APP_AUTHOR := ludgludg
+APP_VERSION := 1.1.0
 
 TARGET		:=	glmark2
 BUILD		:=	build
@@ -48,14 +48,14 @@ EXEFS_SRC	:=	exefs_src
 #---------------------------------------------------------------------------------
 ARCH	:=	-march=armv8-a -mtune=cortex-a57 -mtp=soft -fPIE
 
-CFLAGS	:=	-g -Wall -O3 -ffunction-sections $(ARCH) $(DEFINES)
+CFLAGS	:=	-g -Wall -O2 -ffunction-sections $(ARCH) $(DEFINES)
 
 CFLAGS	+=	$(INCLUDE) -D__SWITCH__ -DGLMARK_DATA_PATH="\".\"" -DGLMARK2_USE_GLESv2 -DGLMARK2_USE_EGL -DGLMARK_VERSION="\""$(APP_VERSION)"\""
 
 CXXFLAGS	:= $(CFLAGS) -fno-rtti -std=gnu++11
 
 ASFLAGS	:=	-g $(ARCH)
-LDFLAGS	=	-specs=$(DEVKITPRO)/libnx/switch.specs -g $(ARCH) -Wl,-Map,$(notdir $*.map)
+LDFLAGS	=	-specs=$(DEVKITPRO)/libnx/switch.specs -g $(ARCH) -Wl,-Map,$(notdir $*.map) -z muldefs
 
 LIBS	:= -lglad -lEGL -lglapi -ldrm_nouveau -lnx -lpng -lz -ljpeg
 

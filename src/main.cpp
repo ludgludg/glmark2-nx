@@ -145,16 +145,17 @@ do_validation(Canvas &canvas)
 int
 main(int argc, char *argv[])
 {
-std::ofstream *logfile = NULL;
-
     if (!Options::parse_args(argc, argv))
         return 1;
 
     /* Initialize Log class */
-#if 1 //def __SWITCH__
+#ifdef __SWITCH__
+    std::ofstream *logfile = NULL;
     logfile = new std::ofstream("glmark2.log");
-#endif
     Log::init(Util::appname_from_path(argv[0]), Options::show_debug, logfile);
+#else
+    Log::init(Util::appname_from_path(argv[0]), Options::show_debug);
+#endif
 
     if (Options::show_help) {
         Options::print_help();
