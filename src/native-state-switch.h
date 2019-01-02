@@ -43,7 +43,7 @@ public:
 
 private:
     /** The X display associated with this canvas. */
-    bool xwin_;
+    NWindow * xwin_;
     bool xdpy_;
     WindowProperties properties_;
 };

@@ -554,7 +554,11 @@ GLStateEGL::select_best_config(std::vector<EGLConfig>& configs)
 
         get_glvisualconfig(config, vc);
 
+#warning patch depth 32 :-(
+if (vc.depth < 32)
         score = vc.match_score(requested_visual_config_);
+else
+score = INT_MIN;
 
         if (score > best_score) {
             best_score = score;
@@ -659,6 +663,7 @@ GLStateEGL::gotValidSurface()
     if (!gotValidConfig())
         return false;
 
+printf("create surfare %p %p %p\n", egl_display_, egl_config_, native_window_);
     egl_surface_ = eglCreateWindowSurface(egl_display_, egl_config_, native_window_, 0);
     if (!egl_surface_) {
         Log::error("eglCreateWindowSurface failed with error: 0x%x\n", eglGetError());

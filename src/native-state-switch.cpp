@@ -134,7 +134,7 @@ static void RestoreStdout()
 
 NativeStateSwitch::NativeStateSwitch()
 {
-    xwin_ = false;
+    xwin_ = 0;
     xdpy_ = false;
     properties_ = WindowProperties();
     CaptureStdout();
@@ -145,7 +145,7 @@ NativeStateSwitch::~NativeStateSwitch()
     if (xdpy_)
     {
         xdpy_ = false;
-        xwin_ = false;
+        xwin_ = 0;
     }
     RestoreStdout();
 }
@@ -159,9 +159,9 @@ NativeStateSwitch::init_display()
         setenv("MESA_NO_ERROR", "1", 1);
 
         // Uncomment below to enable Mesa logging:
-        //setenv("EGL_LOG_LEVEL", "debug", 1);
-        //setenv("MESA_VERBOSE", "all", 1);
-        //setenv("NOUVEAU_MESA_DEBUG", "1", 1);
+        setenv("EGL_LOG_LEVEL", "debug", 1);
+        setenv("MESA_VERBOSE", "all", 1);
+        setenv("NOUVEAU_MESA_DEBUG", "1", 1);
 
         // Uncomment below to enable shader debugging in Nouveau:
         //setenv("NV50_PROG_OPTIMIZE", "0", 1);
@@ -194,7 +194,7 @@ NativeStateSwitch::create_window(WindowProperties const& properties)
              (properties_.width != properties.width ||
               properties_.height != properties.height)))
         {
-            xwin_ = false;
+            xwin_ = 0;
         }
         else
         {
@@ -205,7 +205,7 @@ NativeStateSwitch::create_window(WindowProperties const& properties)
     /* Set desired attributes */
     properties_ = WindowProperties(WINDOW_W, WINDOW_H, 1, properties.visual_id);
 
-    xwin_ = true;
+    xwin_ = nwindowGetDefault();
     return true;
 }
 
